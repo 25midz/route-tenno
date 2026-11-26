@@ -11,7 +11,7 @@ window.TR_CONFIG = {
   },
   // Adresse du relais Cloudflare (voir README). Laisse vide pour appeler les API directement.
   // Exemple : "https://route-tenno.tonpseudo.workers.dev"
-  proxy: "",
+  proxy: "https://route-tenno.mida-jor25.workers.dev",
   language: "fr",
   refreshMinutes: 5
 };
