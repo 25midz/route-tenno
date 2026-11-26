@@ -51,8 +51,11 @@ async function drops(query) {
 // une heure et on refuse de relancer la même requête moins d'une minute après un échec.
 const ID_RX = /^[a-f0-9]{24}$/i;
 async function profile(id, platform) {
-  id = id.trim();
-  if (!ID_RX.test(id)) throw new Error("identifiant invalide : il fait 24 caractères (chiffres et lettres de a à f)");
+  // Accepte un collage approximatif : guillemets, espaces, ou même toute la page user-data.
+  const raw = String(id || "");
+  const found = raw.match(/"user_id"\s*:\s*"([a-f0-9]{24})"/i) || raw.match(/\b([a-f0-9]{24})\b/i);
+  id = found ? found[1] : raw.trim().replace(/["'\s]/g, "");
+  if (!ID_RX.test(id)) throw new Error(`ce n'est pas un identifiant de compte (reçu ${id.length} caractères, attendu 24 chiffres et lettres de a à f). Ce n'est pas ton pseudo`);
   const key = `tr-prof-${platform}-${id.toLowerCase()}`;
   const c = get(key);
   if (c && c.raw && Date.now() - c.at < 3600000) return c.raw;
