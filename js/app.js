@@ -55,7 +55,7 @@ function renderRoute() {
   $("quiz").innerHTML = L.filter(o => o.q).map(o => `<label><input type="checkbox" data-q="${o.id}" ${isDone(o) ? "checked" : ""}>${o.q}</label>`).join("");
   $("plat").value = S.platform;
   $("qmr").value = S.mr;
-  if (S.pseudo && !$("pname").value) $("pname").value = S.pseudo;
+  if (S.pid && !$("pname").value) $("pname").value = S.pid;
 }
 
 /* ---------- Aujourd'hui dans le jeu ---------- */
@@ -203,23 +203,23 @@ function inferFromProfile(p) {
   return { ids, why };
 }
 
-async function importProfile(name) {
-  name = name.trim(); if (!name) return;
+async function importProfile(id) {
+  id = id.trim(); if (!id) return;
   const out = $("pres");
-  out.innerHTML = `<p class="m">Lecture du profil public de « ${esc(name)} »…</p>`;
+  out.innerHTML = `<p class="m">Lecture du profil public…</p>`;
   try {
-    const p = normProfile(await API.profile(name));
+    const p = normProfile(await API.profile(id, S.platform));
     if (p.mr === null && !p.missions.length && !p.xp.length) throw new Error("profil vide ou privé");
     const b = snap(), { ids, why } = inferFromProfile(p);
     if (p.mr !== null) S.mr = Math.max(0, Math.min(30, p.mr));
     ids.forEach(markWithPrereqs);
-    S.pseudo = name;
+    S.pid = id;
     changed(b);
-    out.innerHTML = `<div class="found"><p><b>${esc(p.name || name)}</b>${p.mr !== null ? ` · MR ${esc(p.mr)}` : ""} · ${p.xp.length} objets montés</p>
+    out.innerHTML = `<div class="found"><p><b>${esc(p.name || "Profil trouvé")}</b>${p.mr !== null ? ` · MR ${esc(p.mr)}` : ""} · ${p.xp.length} objets montés</p>
       <ul>${why.map(w => `<li>${esc(w)}</li>`).join("")}</ul>
       <p class="m" style="margin-top:8px">Les quêtes, les mods, les Forma et l'Helminth n'apparaissent pas sur le profil public : complète-les ci-dessous puis valide.</p></div>`;
   } catch (e) {
-    out.innerHTML = `<p class="empty">Impossible de lire ce profil (${esc(e.message || e)}). Vérifie le pseudo, ou consulte le README si l'erreur parle de réseau ou de CORS.</p>`;
+    out.innerHTML = `<p class="empty">Impossible de lire ce profil (${esc(e.message || e)}). Vérifie l'identifiant et la plateforme. Si l'erreur est « Failed to fetch », il faut le relais Cloudflare (voir le README).</p>`;
   }
 }
 

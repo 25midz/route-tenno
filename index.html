@@ -89,6 +89,7 @@ th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);verti
 .links a::after{content:" ↗";font-size:12px;color:var(--mute)}
 .found{margin:0 0 18px;padding:14px 16px;border:1px solid var(--line);border-left:2px solid var(--cyan);background:var(--panel2)}
 .found ul{margin:6px 0 0;padding-left:18px}.found p{margin:0}
+.help{margin:-4px 0 4px}.help ol{margin:6px 0}.help a{color:var(--gold)}.help code{color:var(--cyan)}
 </style>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
 </head>
@@ -148,10 +149,18 @@ th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);verti
   <section id="v-acc" hidden class="panel frame">
     <h2>Où en es-tu ?</h2>
     <form class="bar" id="pf" role="search">
-      <input type="search" id="pname" placeholder="Ton pseudo Warframe" aria-label="Pseudo Warframe" autocomplete="off">
+      <input type="search" id="pname" placeholder="Ton identifiant de compte (24 caractères)" aria-label="Identifiant de compte Warframe" autocomplete="off" spellcheck="false">
       <button class="pri" type="submit">Pré-remplir depuis mon profil public</button>
     </form>
-    <p class="m" style="margin:-6px 0 14px">Lecture seule du profil public, comme l'onglet Profil en jeu. Aucun mot de passe, aucune connexion à ton compte.</p>
+    <details class="help"><summary>Où trouver mon identifiant de compte ?</summary>
+      <ol>
+        <li>Connecte-toi sur <a href="https://www.warframe.com/" target="_blank" rel="noopener">warframe.com</a> dans ton navigateur.</li>
+        <li>Ouvre ensuite <a href="https://www.warframe.com/api/user-data" target="_blank" rel="noopener">warframe.com/api/user-data</a>.</li>
+        <li>Copie les 24 caractères entre guillemets après <code>"user_id":</code> et colle-les ici.</li>
+      </ol>
+      <p class="m">Sur PC, il apparaît aussi dans le fichier EE.log du jeu, sur la ligne « Logged in ». Cet identifiant n'est pas un mot de passe : il permet seulement de voir ton profil public, comme le fait le jeu. La plateforme utilisée est celle choisie dans l'onglet « Aujourd'hui ».</p>
+    </details>
+    <p class="m" style="margin:10px 0 14px">Lecture seule du profil public, comme l'onglet Profil en jeu. Aucun mot de passe, aucune connexion à ton compte.</p>
     <div id="pres" role="status"></div>
     <p class="sub">Vérifie et complète : coche ce que tu as déjà fait. Les prérequis se cochent tout seuls : un joueur MR 12 n'a qu'à cocher ses étapes les plus avancées.</p>
     <label class="mrq">Ton rang de maîtrise actuel <input type="number" id="qmr" min="0" max="30" inputmode="numeric"></label>

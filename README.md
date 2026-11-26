@@ -4,7 +4,7 @@ Guide de progression Warframe, du MR 0 au level cap (MR 16 maximum) :
 - **Parcours** : 43 objectifs avec prérequis, recalculés à chaque étape validée.
 - **Aujourd'hui** : état du monde en direct (alertes, invasions, fissures, Baro, Sortie, Chasse aux Archontes, Teshin, Arbitrage, Nightwave, cycles), trié selon ta progression. Les récompenses utiles pour toi (Catalyseur, Réacteur, Forma…) sont surlignées.
 - **Où farmer ?** : recherche dans les tables de drop, triée par probabilité.
-- **Pré-remplissage par pseudo** : lecture seule du profil public (MR, clan, missions et Steel Path, syndicats, objets montés, intrinsèques). Aucune connexion ni mot de passe. Les quêtes, les mods, les Forma et l'Helminth n'y figurent pas : le joueur les coche lui-même.
+- **Pré-remplissage par identifiant de compte** : lecture seule du profil public (MR, clan, missions et Steel Path, syndicats, objets montés, intrinsèques). Aucune connexion ni mot de passe. DE ne permet plus la recherche par pseudo : le joueur colle son identifiant (24 caractères), qu'il trouve en se connectant sur warframe.com puis en ouvrant warframe.com/api/user-data (champ `user_id`). Les quêtes, les mods, les Forma et l'Helminth n'y figurent pas : le joueur les coche lui-même.
 - **Liens** : chaque objectif renvoie vers les pages utiles du wiki officiel (wiki.warframe.com) et, selon le cas, vers Overframe, warframe.market ou les tables de drop.
 
 Site statique : pas de compilation, pas de serveur. La progression reste dans le navigateur du joueur.
@@ -23,7 +23,7 @@ Pour tester sur ton ordinateur avant de mettre en ligne : `python3 -m http.serve
 C'est probablement un blocage CORS : le navigateur refuse les appels directs à l'API. Pour le contourner, passe par un petit relais :
 1. Crée un compte gratuit sur Cloudflare, puis va dans « Workers & Pages » et crée un Worker.
 2. Colle le contenu de `worker/proxy.js` et déploie.
-3. Dans `js/config.js`, remplace `api` **et** `deContent` par l'adresse du worker (par exemple `https://route-tenno.<compte>.workers.dev`). Le worker relaie à la fois l'état du monde et le profil public.
+3. Dans `js/config.js`, mets l'adresse du worker dans `proxy` (par exemple `proxy: "https://route-tenno.<compte>.workers.dev",`). Le worker relaie à la fois l'état du monde, les tables de drop et le profil public.
 
 ## Modifier le contenu
 
@@ -34,6 +34,6 @@ C'est probablement un blocage CORS : le navigateur refuse les appels directs à 
 
 ## Sources de données
 
-- Profil public : fichier `getProfileViewingData.php` de DE, en lecture seule (le même que l'onglet Profil en jeu), avec un cache d'une heure par pseudo.
+- Profil public : `getProfileViewingData.php` de DE (api.warframe.com et ses équivalents par plateforme), en lecture seule, comme l'onglet Profil en jeu. Cache d'une heure par identifiant. Trop de requêtes, surtout avec des identifiants invalides, peuvent bloquer temporairement l'adresse IP : l'appli vérifie le format avant d'appeler et attend une minute après un échec.
 - État du monde et tables de drop : [warframestat.us](https://docs.warframestat.us), API maintenue par la communauté (WFCD). Elle n'est pas officielle : si un champ change, adapte `tiles()`.
 - Outil de fan, non affilié à Digital Extremes.

@@ -1,9 +1,17 @@
-// Adresse de l'API. Si les appels directs sont bloqués par le navigateur (erreur CORS),
-// déploie worker/proxy.js sur Cloudflare et mets ici l'adresse du worker.
+// Réglages de Route Tenno.
 window.TR_CONFIG = {
+  // Données publiques de la communauté (état du monde, tables de drop).
   api: "https://api.warframestat.us",
-  // Profil public officiel de DE (lecture seule, par pseudo). Avec le proxy, mets ici l'adresse du worker.
-  deContent: "https://content.warframe.com",
+  // Profil public officiel de DE, par plateforme (lecture seule, par identifiant de compte).
+  profileApi: {
+    pc: "https://api.warframe.com",
+    ps4: "https://api-ps4.warframe.com",
+    xb1: "https://api-xb1.warframe.com",
+    swi: "https://api-swi.warframe.com"
+  },
+  // Adresse du relais Cloudflare (voir README). Laisse vide pour appeler les API directement.
+  // Exemple : "https://route-tenno.tonpseudo.workers.dev"
+  proxy: "",
   language: "fr",
   refreshMinutes: 5
 };
