@@ -1,39 +1,52 @@
 # Route Tenno
 
-Guide de progression Warframe, du MR 0 au level cap (MR 16 maximum) :
-- **Parcours** : 43 objectifs avec prérequis, recalculés à chaque étape validée.
-- **Aujourd'hui** : état du monde en direct (alertes, invasions, fissures, Baro, Sortie, Chasse aux Archontes, Teshin, Arbitrage, Nightwave, cycles), trié selon ta progression. Les récompenses utiles pour toi (Catalyseur, Réacteur, Forma…) sont surlignées.
+Guide de progression Warframe, du premier pas au level cap (MR 16 maximum). Outil de fan, non affilié à Digital Extremes.
+
+- **Test de départ** : une question à la fois, avec une jauge d'avancement. Les réponses calculent les objectifs déjà faits.
+- **Aujourd'hui** : les prochains objectifs classés **Essentiel**, **Recommandé** ou **Optionnel**, puis l'état du jeu en direct (alertes, invasions, fissures, Arbitrage, cycles).
+- **Récompenses** : ce qui se refait chaque jour ou chaque semaine, avec le bon choix à faire, des liens vers le wiki et la rotation de la semaine quand elle est disponible (Circuit, Archontes, Teshin, Baro, Sortie, Nightwave). Les cases se décochent seules à la remise à zéro.
 - **Où farmer ?** : recherche dans les tables de drop, triée par probabilité.
-- **Pré-remplissage par identifiant de compte** : lecture seule du profil public (MR, clan, missions et Steel Path, syndicats, objets montés, intrinsèques). Aucune connexion ni mot de passe. DE ne permet plus la recherche par pseudo : le joueur colle son identifiant (24 caractères), qu'il trouve en se connectant sur warframe.com puis en ouvrant warframe.com/api/user-data (champ `user_id`). Les quêtes, les mods, les Forma et l'Helminth n'y figurent pas : le joueur les coche lui-même.
-- **Liens** : chaque objectif renvoie vers les pages utiles du wiki officiel (wiki.warframe.com) et, selon le cas, vers Overframe, warframe.market ou les tables de drop.
+- **Parcours** : tous les objectifs, cochables à la main.
 
-Site statique : pas de compilation, pas de serveur. La progression reste dans le navigateur du joueur.
+Aucun compte ni identifiant : tout reste dans le navigateur du joueur.
 
-## Mettre en ligne avec GitHub Pages (gratuit, environ 5 minutes)
+## Les fichiers
 
-1. Crée un compte sur github.com, puis un nouveau dépôt public (par exemple `route-tenno`).
-2. Clique sur « Add file » puis « Upload files » et glisse tout le contenu de ce dossier (`index.html`, `js/`, `worker/`, `README.md`). Valide avec « Commit changes ».
-3. Va dans « Settings », puis « Pages ». Dans « Source », choisis « Deploy from a branch », sélectionne la branche `main` et le dossier `/ (root)`, puis « Save ».
-4. Au bout d'une minute ou deux, le site est disponible à l'adresse `https://<ton-pseudo>.github.io/route-tenno/`.
+| Fichier | Ce qu'il contient | Quand le modifier |
+|---|---|---|
+| `index.html` | La page et son style | Changer un texte fixe ou l'apparence |
+| `js/config.js` | L'adresse du relais Cloudflare | Une seule fois |
+| `js/data.js` | Les objectifs du parcours | Ajouter, retirer ou reclasser un objectif |
+| `js/quiz.js` | Les questions du test | Changer une question ou ses réponses |
+| `js/rewards.js` | Les récompenses périodiques et les listes de priorité | Après une mise à jour du jeu |
+| `js/api.js`, `js/app.js` | Le fonctionnement | En principe jamais |
+| `worker/proxy.js` | Le code du relais Cloudflare | En principe jamais |
 
-Pour tester sur ton ordinateur avant de mettre en ligne : `python3 -m http.server` dans ce dossier, puis ouvre http://localhost:8000.
+### Exemples de modifications
 
-## Si « Données en direct indisponibles » s'affiche
+**Reclasser un objectif** : dans `js/data.js`, change `tier: "R"` en `tier: "O"` (E = Essentiel, R = Recommandé, O = Optionnel).
 
-C'est probablement un blocage CORS : le navigateur refuse les appels directs à l'API. Pour le contourner, passe par un petit relais :
-1. Crée un compte gratuit sur Cloudflare, puis va dans « Workers & Pages » et crée un Worker.
-2. Colle le contenu de `worker/proxy.js` et déploie.
-3. Dans `js/config.js`, mets l'adresse du worker dans `proxy` (par exemple `proxy: "https://route-tenno.<compte>.workers.dev",`). Le worker relaie à la fois l'état du monde, les tables de drop et le profil public.
+**Mettre à jour les Incarnon prioritaires** : dans `js/rewards.js`, modifie la liste `INCARNON_TOP` (priorité) ou `INCARNON_GOOD` (bon choix).
 
-## Modifier le contenu
+**Ajouter une récompense périodique** : copie un bloc `{ id: …, … }` dans `js/rewards.js`, donne-lui un `id` unique et adapte les textes.
 
-- **Parcours** : `js/data.js`. Chaque objectif suit le format `[id, phase, titre, MR minimum, [prérequis], priorité 1-5, heures estimées, pourquoi, [liens], libellé dans le questionnaire ou null, MR atteint (seulement pour les paliers de MR)]`. Un lien s'écrit `["Libellé", "https://…"]`, ou `["Libellé", "w:Nom de la page"]` pour le wiki : la recherche du wiki ouvre directement la page si le titre existe, sinon les résultats.
-- **Règles de pré-remplissage** : fonction `inferFromProfile()` dans `js/app.js`. Elles ont été écrites d'après la structure connue du profil public, sans test sur un vrai compte : vérifie-les avec ton propre pseudo.
-- **Boutons « Où farmer »** d'un objectif : objet `DROPS` en bas de `js/data.js`. Les noms sont en anglais.
-- **Règles du bloc « Aujourd'hui »** : fonction `tiles()` dans `js/app.js`.
+**Un lien vers le wiki** s'écrit `["Wiki : Nom", "w:Nom de la page"]` : le lien ouvre la page si le titre existe, sinon la recherche du wiki.
 
-## Sources de données
+Après une modification, change le numéro de version (`20261127a`) partout dans `index.html` : les navigateurs chargeront alors la nouvelle version au lieu de garder l'ancienne en mémoire.
 
-- Profil public : `getProfileViewingData.php` de DE (api.warframe.com et ses équivalents par plateforme), en lecture seule, comme l'onglet Profil en jeu. Cache d'une heure par identifiant. Trop de requêtes, surtout avec des identifiants invalides, peuvent bloquer temporairement l'adresse IP : l'appli vérifie le format avant d'appeler et attend une minute après un échec.
-- État du monde et tables de drop : [warframestat.us](https://docs.warframestat.us), API maintenue par la communauté (WFCD). Elle n'est pas officielle : si un champ change, adapte `tiles()`.
-- Outil de fan, non affilié à Digital Extremes.
+## Mettre en ligne (GitHub Pages)
+
+1. Dans ton dépôt GitHub : **Add file**, puis **Upload files**. Glisse tout le contenu du dossier (sauf `js/config.js` si ton relais est déjà réglé), puis **Commit changes**.
+2. **Settings**, puis **Pages** : source **Deploy from a branch**, branche `main`, dossier `/ (root)`.
+3. Le site est à l'adresse `https://<ton-pseudo>.github.io/<nom-du-dépôt>/`.
+
+## Le relais Cloudflare (données en direct)
+
+Les navigateurs bloquent les appels directs à l'API. Le relais les transmet :
+1. Sur Cloudflare, ouvre **Workers & Pages** et crée un Worker, puis colle le contenu de `worker/proxy.js` et clique sur **Deploy**.
+2. Mets son adresse dans `js/config.js`, ligne `proxy: "https://…workers.dev",`.
+
+## Sources
+
+- État du monde et tables de drop : [warframestat.us](https://docs.warframestat.us), API de la communauté (non officielle).
+- Contenu du parcours et des récompenses : wiki officiel (wiki.warframe.com) et guides communautaires, vérifiés en novembre 2026 (mise à jour 44.1). Warframe évolue souvent : relis `js/rewards.js` après chaque grosse mise à jour.

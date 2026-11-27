@@ -3,15 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a0e15">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Route Tenno">
 <title>Route Tenno</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Hanken+Grotesk:wght@400;600&display=swap" rel="stylesheet">
 <style>
-/* VOICE: a calm Tenno codex: quiet, precise, a little ceremonial
+/* VOICE: a calm Tenno codex: quiet, precise, encouraging
    IDEA: an in-game codex screen; phases are planets on a star route, cards are framed codex entries
-   PICTURE: four void-lit orbit rings joined by a gilded route, with an original ring-and-diamond ornament beside the title
-   COLOUR and TYPE: void night #0a0e15 in both themes, gilded hairlines #c9a961, void cyan #6fd6e8 for progress, coral #ff7a66 only for the top priority; Rajdhani + Hanken Grotesk
-   LAYOUT: title and ornament, star route, tabs; live game state, next goals, farm search, full route; one column on phones */
+   PICTURE: four void-lit orbit rings joined by a gilded route; the test is one large framed card with a filling gauge
+   COLOUR and TYPE: void night #0a0e15 in both themes, gilded hairlines #c9a961, void cyan #6fd6e8 for progress, coral only for top priority; Rajdhani + Hanken Grotesk
+   LAYOUT: title, star route, tabs (today, rewards, farm, route, profile); one column on phones */
 :root{color-scheme:dark;--bg:#0a0e15;--panel:#111824;--panel2:#0d131d;--line:#2a3445;--gold:#c9a961;--gold2:#8a7444;--ink:#e8ecf2;--mute:#94a0b3;--cyan:#6fd6e8;--coral:#ff7a66}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;color:var(--ink);font:16px/1.55 "Hanken Grotesk",system-ui,sans-serif;overflow-x:clip;background:radial-gradient(ellipse 70% 45% at 85% -5%,rgba(111,214,232,.13),transparent 70%),radial-gradient(ellipse 50% 35% at 0% 100%,rgba(201,169,97,.07),transparent 70%),var(--bg);background-attachment:fixed;min-height:100vh}
@@ -20,10 +24,9 @@ h1{font-size:clamp(32px,6vw,50px)}h2{font-size:28px;margin-bottom:14px;display:f
 h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--gold2),transparent)}
 h3{font-size:21px}
 .band{padding:clamp(22px,4vw,48px) max(5vw,16px)}.wrap{max-width:1240px;margin:0 auto}
-.top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;margin-bottom:24px}
+.top{margin-bottom:24px}
 .top h1 span{color:var(--gold)}
 .sub{color:var(--mute);margin:8px 0 14px;max-width:60ch}
-.orn{width:150px;height:150px}
 button{font:inherit;min-height:44px;border-radius:2px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:0 18px;cursor:pointer;transition:border-color .2s,background .2s}
 button:hover{border-color:var(--gold2)}
 button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
@@ -68,7 +71,7 @@ ol{margin:6px 0 0;padding-left:20px}li{margin:3px 0}li::marker{color:var(--gold2
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(30px);opacity:0;background:#151d2a;color:var(--ink);border:1px solid var(--gold2);padding:12px 18px;max-width:min(92vw,520px);transition:.3s;pointer-events:none;box-shadow:0 0 24px rgba(111,214,232,.2)}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .empty{color:var(--mute)}
-@media(max-width:600px){.top{grid-template-columns:1fr}.orn{display:none}.route{grid-template-columns:1fr}.ring{width:68px;height:68px}.ring i{width:54px;height:54px;font-size:16px}.planets::before{top:34px}.pl strong{font-size:15px}.tabs button{padding:0 12px}}
+@media(max-width:600px){.route{grid-template-columns:1fr}.ring{width:68px;height:68px}.ring i{width:54px;height:54px;font-size:16px}.planets::before{top:34px}.pl strong{font-size:15px}.tabs button{padding:0 12px}}
 @media(prefers-reduced-motion:reduce){.toast,button{transition:none}}
 
 .chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.chip{min-height:36px;padding:0 12px;font-size:14px}
@@ -87,28 +90,55 @@ th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);verti
 .links{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
 .links a{color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold2)}.links a:hover{color:#e3c98a}
 .links a::after{content:" ↗";font-size:12px;color:var(--mute)}
-.found{margin:0 0 18px;padding:14px 16px;border:1px solid var(--line);border-left:2px solid var(--cyan);background:var(--panel2)}
-.found ul{margin:6px 0 0;padding-left:18px}.found p{margin:0}
-.help{margin:-4px 0 4px}.help ol{margin:6px 0}.help a{color:var(--gold)}.help code{color:var(--cyan)}
+
+/* niveaux d'objectifs */
+.tier{font-size:13px;padding:1px 9px;white-space:nowrap;border:1px solid}
+.tier.E{border-color:var(--gold);color:var(--gold)}.tier.R{border-color:#3f7f8c;color:var(--cyan)}.tier.O{border-color:var(--line);color:var(--mute)}
+.opt{margin-top:26px}.opt .item{align-items:center}.opt .item button{margin-left:auto;min-height:38px;font-size:14px;flex:none}
+/* test */
+.quiz{max-width:720px;margin:0 auto;padding:clamp(20px,4vw,34px)}
+.gauge{height:10px;background:#1c2533;border:1px solid var(--line);overflow:hidden}
+.gauge i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--gold));transition:width .45s ease}
+.gmeta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:8px 0 22px;font-size:14px;color:var(--mute)}
+.gmeta b{color:var(--gold);font-weight:600}
+.quiz h2{font-size:clamp(24px,4vw,32px)}.quiz h2::after{display:none}
+.choices{display:grid;gap:10px;margin:18px 0}
+.choice{text-align:left;min-height:52px;padding:10px 16px;background:var(--panel2);border:1px solid var(--line);display:flex;gap:12px;align-items:center}
+.choice::before{content:"";width:18px;height:18px;flex:none;border:1px solid var(--gold2);border-radius:50%}
+.multi .choice::before{border-radius:2px}
+.choice[aria-pressed=true]{border-color:var(--gold);background:#1a1f26}
+.choice[aria-pressed=true]::before{background:var(--gold);box-shadow:inset 0 0 0 3px #1a1f26}
+.qnav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.mrbig{display:flex;align-items:center;justify-content:center;gap:18px;margin:22px 0 10px}
+.mrbig b{font:700 72px/1 Rajdhani,sans-serif;color:var(--gold);min-width:2ch;text-align:center}
+.mrbig button{width:52px;height:52px;font-size:24px;padding:0}
+.quick{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.quick button{min-height:38px;font-size:14px}
+.done-q{text-align:center}.done-q .big{font:700 clamp(40px,8vw,64px)/1 Rajdhani,sans-serif;color:var(--gold);margin:10px 0}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px;margin:18px 0}
+.summary div{padding:14px;border:1px solid var(--line);background:var(--panel2)}.summary b{display:block;font:700 28px Rajdhani,sans-serif;color:var(--cyan)}
+/* récompenses */
+.rtools{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:0 0 16px}
+.rtools label{display:flex;gap:8px;align-items:center;min-height:44px}.rtools input{width:20px;height:20px;accent-color:var(--gold)}
+.rgroup{margin-top:24px}.rgroup>h3{color:var(--gold);margin-bottom:10px}.rgroup>h3 small{color:var(--mute);font-size:15px;font-weight:400}
+.task.done{opacity:.55}.task.lock{opacity:.6}
+.task .chk{display:flex;gap:10px;align-items:center;min-height:44px;font-weight:600;cursor:pointer}
+.task .chk input{width:22px;height:22px;accent-color:var(--gold)}
+.rank{font-size:13px;padding:1px 9px;border:1px solid var(--line);color:var(--mute);white-space:nowrap}
+.rank.Incontournable{border-color:var(--gold);color:var(--gold)}.rank.Conseillé{border-color:#3f7f8c;color:var(--cyan)}
+.lbl{font-size:13px;color:var(--mute);display:block;margin-bottom:2px}
+.liveinfo{padding:10px 12px;border:1px solid #22303f;border-left:2px solid var(--cyan);background:var(--panel2);font-size:15px}
+.liveinfo ul{margin:4px 0 0;padding-left:18px}
+.star{color:var(--gold);font-weight:600}
+.onboarding .route,.onboarding .tabs{display:none}.onboarding #v-acc{margin-top:8px}
+.ob{display:none}.onboarding .ob{display:inline;color:var(--ink)}
 </style>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
 </head>
 <body>
 <main class="band"><div class="wrap">
   <div class="top">
-    <div><h1>Route Tenno : <span>du premier pas au level cap</span></h1>
-    <p class="sub">Tes prochains objectifs, recalculés à chaque étape validée et croisés avec ce qui se passe en jeu aujourd'hui. Pour les joueurs de MR 0 à 16.</p>
-    <button id="openQ">Mettre à jour mon compte</button></div>
-    <svg class="orn" viewBox="0 0 150 150" aria-hidden="true" fill="none">
- <defs><radialGradient id="vg"><stop offset="0" stop-color="#6fd6e8" stop-opacity=".55"/><stop offset="1" stop-color="#6fd6e8" stop-opacity="0"/></radialGradient></defs>
- <circle cx="75" cy="75" r="60" fill="url(#vg)"/>
- <circle cx="75" cy="75" r="58" stroke="#8a7444" stroke-width="1"/>
- <circle cx="75" cy="75" r="46" stroke="#c9a961" stroke-width="1.5" stroke-dasharray="2 6"/>
- <path d="M75 6v18M75 126v18M6 75h18M126 75h18" stroke="#c9a961" stroke-width="1.5"/>
- <path d="M75 40 98 75 75 110 52 75Z" stroke="#c9a961" stroke-width="2" fill="#0d131d"/>
- <path d="M75 54 87 75 75 96 63 75Z" fill="#6fd6e8" opacity=".85"/>
- <circle cx="75" cy="75" r="3" fill="#0a0e15"/>
-</svg>
+    <h1>Route Tenno : <span>du premier pas au level cap</span></h1>
+    <p class="sub"><span class="ob">Réponds à quelques questions : on calcule ton plan à partir de là. </span>Tes prochains objectifs, classés par importance et croisés avec ce qui se passe en jeu aujourd'hui. Pour les joueurs de MR 0 à 16.</p>
   </div>
 
   <section class="route frame" aria-label="Avancement">
@@ -119,61 +149,51 @@ th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);verti
 
   <div class="tabs" role="group" aria-label="Vue">
     <button data-v="next" aria-pressed="true">Aujourd'hui</button>
+    <button data-v="rew" aria-pressed="false">Récompenses</button>
     <button data-v="farm" aria-pressed="false">Où farmer ?</button>
-    <button data-v="all" aria-pressed="false">Parcours complet</button>
-    <button data-v="acc" aria-pressed="false">Mon compte</button>
+    <button data-v="all" aria-pressed="false">Parcours</button>
+    <button data-v="acc" aria-pressed="false">Mon profil</button>
   </div>
 
   <section id="v-next">
-    <h2>En jeu en ce moment</h2>
-    <div class="bar">
-      <label for="plat" class="m">Plateforme</label>
-      <select id="plat"><option value="pc">PC</option><option value="ps4">PlayStation</option><option value="xb1">Xbox</option><option value="swi">Switch</option></select>
-      <button id="refresh">Actualiser</button>
-      <span class="m" id="wsstate" role="status"></span>
-    </div>
-    <div class="grid" id="today"></div>
-    <h2 style="margin-top:30px">Tes prochains objectifs</h2>
+    <h2>Tes prochains objectifs</h2>
     <div class="grid" id="next"></div>
     <div id="mrlock"></div>
+    <div id="optional"></div>
+    <h2 style="margin-top:34px">En jeu en ce moment</h2>
+    <div class="bar"><button id="refresh">Actualiser</button><span class="m" id="wsstate" role="status"></span></div>
+    <div class="grid" id="today"></div>
+  </section>
+
+  <section id="v-rew" hidden>
+    <h2>Récompenses périodiques</h2>
+    <p class="sub">Ce qui se refait chaque jour ou chaque semaine, avec le bon choix à faire. Coche au fur et à mesure : tout se décoche seul à la remise à zéro. Les heures sont en UTC (heure française moins 1 h en hiver).</p>
+    <div class="rtools"><label><input type="checkbox" id="onlyopen" checked> Seulement ce que j'ai débloqué</label><span class="m" id="rcount"></span></div>
+    <div id="rewards"></div>
   </section>
 
   <section id="v-farm" hidden>
     <h2>Où farmer ?</h2>
-    <form class="bar" id="ff" role="search"><input type="search" id="fq" placeholder="Nom de l'objet en anglais, ex. Rhino, Forma, Vitality" aria-label="Objet à chercher"><button class="pri" type="submit">Chercher</button></form>
+    <form class="bar" id="ff" role="search"><input type="search" id="fq" placeholder="Nom de l'objet en anglais, ex. Forma, Vitality, Rhino" aria-label="Objet à chercher"><button class="pri" type="submit">Chercher</button></form>
     <div id="fres"><p class="empty">Les sources sont triées de la plus probable à la moins probable, d'après les tables de drop officielles.</p></div>
   </section>
 
-  <section id="v-all" hidden><h2>Le parcours complet</h2><div id="all"></div></section>
+  <section id="v-all" hidden><h2>Le parcours complet</h2>
+    <p class="sub"><span class="tier E">Essentiel</span> indispensable pour avancer · <span class="tier R">Recommandé</span> te fera gagner du temps · <span class="tier O">Optionnel</span> si tu en as envie.</p>
+    <div id="all"></div></section>
 
-  <section id="v-acc" hidden class="panel frame">
-    <h2>Où en es-tu ?</h2>
-    <form class="bar" id="pf" role="search">
-      <input type="search" id="pname" placeholder="Ton identifiant de compte (24 caractères)" aria-label="Identifiant de compte Warframe" autocomplete="off" spellcheck="false">
-      <button class="pri" type="submit">Pré-remplir depuis mon profil public</button>
-    </form>
-    <details class="help"><summary>Où trouver mon identifiant de compte ?</summary>
-      <ol>
-        <li>Connecte-toi sur <a href="https://www.warframe.com/" target="_blank" rel="noopener">warframe.com</a> dans ton navigateur.</li>
-        <li>Ouvre ensuite <a href="https://www.warframe.com/api/user-data" target="_blank" rel="noopener">warframe.com/api/user-data</a>.</li>
-        <li>Copie les 24 caractères entre guillemets après <code>"user_id":</code> et colle-les ici.</li>
-      </ol>
-      <p class="m">Sur PC, il apparaît aussi dans le fichier EE.log du jeu, sur la ligne « Logged in ». Cet identifiant n'est pas un mot de passe : il permet seulement de voir ton profil public, comme le fait le jeu. La plateforme utilisée est celle choisie dans l'onglet « Aujourd'hui ».</p>
-    </details>
-    <p class="m" style="margin:10px 0 14px">Lecture seule du profil public, comme l'onglet Profil en jeu. Aucun mot de passe, aucune connexion à ton compte.</p>
-    <div id="pres" role="status"></div>
-    <p class="sub">Vérifie et complète : coche ce que tu as déjà fait. Les prérequis se cochent tout seuls : un joueur MR 12 n'a qu'à cocher ses étapes les plus avancées.</p>
-    <label class="mrq">Ton rang de maîtrise actuel <input type="number" id="qmr" min="0" max="30" inputmode="numeric"></label>
-    <div class="q" id="quiz"></div>
-    <div class="row" style="margin-top:18px"><button class="pri" id="saveQ">Valider et voir mes objectifs</button><button id="reset">Tout remettre à zéro</button></div>
+  <section id="v-acc" hidden>
+    <div id="quiz"></div>
   </section>
 
-  <p class="note">Outil de fan, non affilié à Digital Extremes. Données en direct : warframestat.us (communauté). Les prérequis du parcours évoluent avec les mises à jour du jeu.</p>
+  <p class="note">Outil de fan, non affilié à Digital Extremes. Données en direct : warframestat.us (communauté). Les prérequis évoluent avec les mises à jour du jeu. Version 20261127a.</p>
 </div></main>
 <div class="toast" id="toast" role="status"></div>
-<script src="js/config.js"></script>
-<script src="js/data.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
+<script src="js/config.js?v=20261127a"></script>
+<script src="js/data.js?v=20261127a"></script>
+<script src="js/quiz.js?v=20261127a"></script>
+<script src="js/rewards.js?v=20261127a"></script>
+<script src="js/api.js?v=20261127a"></script>
+<script src="js/app.js?v=20261127a"></script>
 </body>
 </html>
