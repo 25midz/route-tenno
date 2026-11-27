@@ -51,7 +51,7 @@ function renderRoute() {
   $("planets").innerHTML = st.map(x => `<div class="pl${x.i === cur ? " now" : ""}"><div class="ring" style="--p:${x.pc};--c:${x.p.c}"><i>${x.pc}%</i></div><strong>${x.p.n}</strong><small>${x.p.r} · ${x.d}/${x.n}</small></div>`).join("");
 
   const av = L.filter(o => avail(o) && o.tier !== "O").sort((a, b) => score(b) - score(a)).slice(0, 5);
-  $("next").innerHTML = av.length ? av.map(card).join("") : '<p class="empty">Tous les objectifs essentiels et recommandés sont validés : tu as atteint le level cap visé par ce guide.</p>';
+  $("next").innerHTML = av.length ? av.map(card).join("") : '<p class="empty">Tous les objectifs essentiels et recommandés sont validés : monte tes armes, warframes, compagnons etc. pour grimper en MR.</p>';
   const lk = L.filter(o => !isDone(o) && reqOk(o) && S.mr < o.mr && !o.autoMR);
   $("mrlock").innerHTML = lk.length ? `<h3 style="margin:26px 0 8px">Prêt, mais il te faut un MR plus élevé</h3><p class="sub">${lk.map(o => `${esc(o.title)} (MR ${o.mr})`).join(" · ")}</p>` : "";
   const op = L.filter(o => avail(o) && o.tier === "O");
