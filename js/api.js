@@ -2,7 +2,7 @@
 {
 const C = window.TR_CONFIG;
 const BASE = (C.proxy || C.api).replace(/\/$/, "");
-const get = (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } };
+const get = k => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } };
 const put = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 
 async function getJSON(url, ms = 10000) {
@@ -15,13 +15,13 @@ async function getJSON(url, ms = 10000) {
   } finally { clearTimeout(t); }
 }
 
-// État du monde complet pour une plateforme. Renvoie {data, at, stale, error}.
+// État du monde d'une plateforme. Renvoie {data, at, stale, error}.
 async function worldstate(platform, force) {
   const key = "tr-ws-" + platform;
   const c = get(key);
   if (!force && c && Date.now() - c.at < C.refreshMinutes * 60000) return { ...c, stale: false };
   try {
-    const data = await getJSON(`${BASE}/${platform}/?language=${C.language}`);
+    const data = await getJSON(`${BASE}/${platform}?language=${C.language}`);
     const v = { data, at: Date.now() };
     put(key, v);
     return { ...v, stale: false };
@@ -31,7 +31,7 @@ async function worldstate(platform, force) {
   }
 }
 
-// Recherche dans les tables de drop. Renvoie une liste [{item, place, rarity, chance}].
+// Recherche dans les tables de drop. Renvoie [{item, place, rarity, chance}], triée par chance.
 async function drops(query) {
   const key = "tr-drop-" + query.toLowerCase();
   const c = get(key);
@@ -45,34 +45,5 @@ async function drops(query) {
   return list;
 }
 
-// Profil public par identifiant de compte (24 caractères), en lecture seule.
-// DE ne permet plus la recherche par pseudo. Trop de requêtes, surtout avec un identifiant
-// invalide, peuvent bloquer temporairement l'adresse IP : on valide le format, on met en cache
-// une heure et on refuse de relancer la même requête moins d'une minute après un échec.
-const ID_RX = /^[a-f0-9]{24}$/i;
-async function profile(id, platform) {
-  // Accepte un collage approximatif : guillemets, espaces, ou même toute la page user-data.
-  const raw = String(id || "");
-  const found = raw.match(/"user_id"\s*:\s*"([a-f0-9]{24})"/i) || raw.match(/\b([a-f0-9]{24})\b/i);
-  id = found ? found[1] : raw.trim().replace(/["'\s]/g, "");
-  if (!ID_RX.test(id)) throw new Error(`ce n'est pas un identifiant de compte (reçu ${id.length} caractères, attendu 24 chiffres et lettres de a à f). Ce n'est pas ton pseudo`);
-  const key = `tr-prof-${platform}-${id.toLowerCase()}`;
-  const c = get(key);
-  if (c && c.raw && Date.now() - c.at < 3600000) return c.raw;
-  if (c && c.failAt && Date.now() - c.failAt < 60000) throw new Error("patiente une minute avant de réessayer");
-  const url = C.proxy
-    ? `${C.proxy.replace(/\/$/, "")}/cdn/getProfileViewingData.php?playerId=${id}&platform=${platform}`
-    : `${C.profileApi[platform] || C.profileApi.pc}/cdn/getProfileViewingData.php?playerId=${id}`;
-  try {
-    const raw = await getJSON(url);
-    if (!raw || typeof raw !== "object" || raw.error) throw new Error(raw && raw.error ? String(raw.error) : "réponse vide");
-    put(key, { at: Date.now(), raw });
-    return raw;
-  } catch (e) {
-    put(key, { failAt: Date.now() });
-    throw e;
-  }
-}
-
-window.TR_API = { worldstate, drops, profile };
+window.TR_API = { worldstate, drops };
 }
