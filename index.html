@@ -8,8 +8,13 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Route Tenno">
 <title>Route Tenno</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Hanken+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Rajdhani:wght@600;700&family=Hanken+Grotesk:wght@400;600&display=swap" rel="stylesheet">
 <style>
 /* VOICE: a calm Tenno codex: quiet, precise, encouraging
    IDEA: an in-game codex screen; phases are planets on a star route, cards are framed codex entries
@@ -129,6 +134,7 @@ th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);verti
 .liveinfo{padding:10px 12px;border:1px solid #22303f;border-left:2px solid var(--cyan);background:var(--panel2);font-size:15px}
 .liveinfo ul{margin:4px 0 0;padding-left:18px}
 .star{color:var(--gold);font-weight:600}
+.brand{margin:0 0 10px;line-height:0}.brand .logo{width:clamp(260px,52vw,500px);height:auto;display:block;overflow:visible}
 .onboarding .route,.onboarding .tabs{display:none}.onboarding #v-acc{margin-top:8px}
 .ob{display:none}.onboarding .ob{display:inline;color:var(--ink)}
 </style>
@@ -137,8 +143,8 @@ th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);verti
 <body>
 <main class="band"><div class="wrap">
   <div class="top">
-    <h1>Route Tenno : <span>du premier pas au level cap</span></h1>
-    <p class="sub"><span class="ob">Réponds à quelques questions : on calcule ton plan à partir de là. </span>Tes prochains objectifs, classés par importance et croisés avec ce qui se passe en jeu aujourd'hui. Pour les joueurs de MR 0 à 16.</p>
+    <h1 class="brand"><svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="30 50 900 300" role="img" aria-label="Route Tenno, guide de progression du MR 0 au MR 16"><defs><linearGradient id="rt-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3E2B0"/><stop offset="1" stop-color="#B98A3E"/></linearGradient></defs><g transform="translate(40 60) scale(1.4)"><path d="M100 8 L168 50 L168 134 L100 192 L32 134 L32 50 Z" fill="none" stroke="url(#rt-gold)" stroke-width="3" stroke-linejoin="round"/><path d="M100 22 L156 57 L156 127 L100 176 L44 127 L44 57 Z" fill="none" stroke="#C9A45C" stroke-opacity="0.45" stroke-width="1"/><path d="M32 76 Q12 92 32 108 M168 76 Q188 92 168 108" fill="none" stroke="url(#rt-gold)" stroke-width="2" stroke-linecap="round"/><path d="M100 160 C70 148 72 126 100 118 C128 110 130 88 100 80 C80 74 82 58 100 50" fill="none" stroke="#5FD3E0" stroke-width="4" stroke-linecap="round"/><circle cx="100" cy="160" r="5" fill="#0A0E16" stroke="url(#rt-gold)" stroke-width="2.5"/><path d="M100 111 L107 118 L100 125 L93 118 Z" fill="url(#rt-gold)"/><path d="M100 73 L107 80 L100 87 L93 80 Z" fill="url(#rt-gold)"/><path d="M100 28 L113 44 L100 60 L87 44 Z" fill="url(#rt-gold)"/><path d="M100 36 L106 44 L100 52 L94 44 Z" fill="#0A0E16"/></g><text x="350" y="148" font-family="Cinzel, Trajan Pro, serif" font-weight="600" font-size="96" letter-spacing="13" fill="#EFE4CB">ROUTE</text><text x="350" y="258" font-family="Cinzel, Trajan Pro, serif" font-weight="700" font-size="96" letter-spacing="13" fill="#D9B56A">TENNO</text><line x1="350" y1="290" x2="618" y2="290" stroke="#C9A45C"/><rect x="624" y="284" width="12" height="12" transform="rotate(45 630 290)" fill="#5FD3E0"/><line x1="642" y1="290" x2="910" y2="290" stroke="#C9A45C"/><text x="350" y="334" font-family="Rajdhani, Arial Narrow, sans-serif" font-weight="600" font-size="22" letter-spacing="6.6" fill="#A9B8CC">GUIDE DE PROGRESSION · MR 0 → 16</text></svg></h1>
+    <p class="sub"><span class="ob">Réponds à quelques questions : on calcule ton plan à partir de là. </span>Tes prochains objectifs, classés par importance et croisés avec ce qui se passe en jeu aujourd'hui.</p>
   </div>
 
   <section class="route frame" aria-label="Avancement">
@@ -186,14 +192,14 @@ th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);verti
     <div id="quiz"></div>
   </section>
 
-  <p class="note">Outil de fan, non affilié à Digital Extremes. Données en direct : warframestat.us (communauté). Les prérequis évoluent avec les mises à jour du jeu. Version 20261127a.</p>
+  <p class="note">Outil de fan, non affilié à Digital Extremes. Données en direct : warframestat.us (communauté). Les prérequis évoluent avec les mises à jour du jeu. Version 20261127c.</p>
 </div></main>
 <div class="toast" id="toast" role="status"></div>
-<script src="js/config.js?v=20261127a"></script>
-<script src="js/data.js?v=20261127a"></script>
-<script src="js/quiz.js?v=20261127a"></script>
-<script src="js/rewards.js?v=20261127a"></script>
-<script src="js/api.js?v=20261127a"></script>
-<script src="js/app.js?v=20261127a"></script>
+<script src="js/config.js?v=20261127c"></script>
+<script src="js/data.js?v=20261127c"></script>
+<script src="js/quiz.js?v=20261127c"></script>
+<script src="js/rewards.js?v=20261127c"></script>
+<script src="js/api.js?v=20261127c"></script>
+<script src="js/app.js?v=20261127c"></script>
 </body>
 </html>
